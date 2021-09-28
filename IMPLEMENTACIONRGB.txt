@@ -1,0 +1,131 @@
+
+1
+2
+MD_MAX72XX mxObj = MD_MAX72XX(hardware, pinCS, matCount);
+//Modulo de matriz LED con Arduino basado en MAX7219 o MAX7221
+// Utilizar:
+//  - el tipo de hardware DR0CR0RR1_HW,
+//  - la interfaz SPI para comunicación,
+//  - el pin 10 como CS,
+//  - se conectan 5 matrices 
+MD_MAX72XX mx = MD_MAX72XX(MD_MAX72XX::DR0CR0RR1_HW, 10, 5);
+MD_MAX72XX mxObj = MD_MAX72XX(hardware, pinDIN, pinCLK, pinCS, matCount);
+//Modulo de matriz LED con Arduino basado en MAX7219 o MAX7221
+// Utilizar:
+//  - PAROLA_HW como tipo de hardware
+//  - pin digital 2 conectado al pin DIN
+//  - pin digital 4 conectado al pin CLK
+//  - pin digital 3 conectado al pin CS
+//  - se conectan dos matrices 
+
+MD_MAX72XX mx = MD_MAX72XX(MD_MAX72XX::PAROLA_HW, 2, 4, 3, 2);
+mxObj.control(param, value);
+// Sacar todas las matrices del modo de bajo consumo 
+mx.control(MD_MAX72XX::SHUTDOWN, false);
+
+// Establecer a 1 la intensidad de los LEDs
+mx.control(MD_MAX72XX::INTENSITY, 1);
+mxObj.control(mat, param, value);
+// Poner el segundo módulo en modo de bajo consumo
+mx.control(1, MD_MAX72XX::SHUTDOWN, true);
+mxObj.control(matIni, matFin, param, value);
+// Poner las matrices 0, 1, 2 y 3 en modo de prueba
+mx.control(0, 3, MD_MAX72XX::TEST, true);
+// obtener la última columna de todo el conjunto de matrices
+int last_col = mx.getColumnCount() - 1;
+// Limpiar todas las matrices
+mx.clear();
+mxObj.clear(matIni, matFin);
+// Limpiar las matrices 0, 1 y 2.
+mx.clear(0, 2);
+// Establecer un nuevo estado en la cuarta columna de la primera matriz
+// Se encienden los dos LEDs inferiores y el LED superior de la columna 
+mx.setColumn(0, 3, B11000001);
+
+// Establecer un nuevo estado en la octava columna de la tercera matriz
+// Se encienden el LED superior y el inferior 
+mx.setColumn(2, 7, B10000001);
+mxObj.setColumn(col, value);
+// Configurar la tercera columna de la segunda matriz con todos los LEDs encendidos
+// - Las columnas 8-15 pertenecen a la segunda matriz
+// - 0xFF = B11111111
+mx.setColumn(10, 0xFF);
+
+// Configurar la última columna de la segunda matriz con todos los LEDs apagados
+// - Las columnas 8-15 pertenecen a la segunda matriz
+// - 0xFF = B00000000
+mx.setColumn(15, 0x00);
+mxObj.setPoint(fila, col, estado);
+// Encender el LED de la segunda fila y la 11na columna (tercera columna de la segunda matriz)
+// - Las columnas 8-15 pertenecen a la segunda matriz
+// - true -&gt; encender
+mx.setPoint(1, 10, true);
+
+// Apagar el LED de la primera fila y la 7ma columna (7ma columna de la primera matriz)
+// - Las columnas 0-7 pertenecen a la primera matriz
+// - false -&gt; apagar
+mx.setPoint(0, 7, false);
+mxObj.setRow(mat, fil, value);
+// Encender todos los LEDs de la 5ta fila de la primera matriz
+//  - 0xFF = B11111111
+mx.setRow(0, 4, 0xFF);
+
+// Encender la mitad de los LEDs de la 6ta fila de la tercera matriz
+//  - 0xF0 = B11110000
+mx.setRow(2, 5, 0xF0);
+mxObj.setRow(fil, estado);
+// Encender todos los LEDs de la 5ta fila de todas las matrices
+//  - 0xFF = B11111111
+mx.setRow(4, 0xFF);
+
+// Encender la mitad de los LEDs de la 6ta fila de todas las matrices
+//  - 0xF0 = B11110000
+mx.setRow(5, 0xF0);
+mxObj.setRow(matIni, matFin, fil, estado);
+// Encender todos los LEDs de la 5ta fila de las matrices 2, 3 y 4
+//  - 0xFF = B11111111
+mx.setRow(1, 3, 4, 0xFF);
+
+// Encender la mitad de los LEDs de la 6ta fila de las matrices 1, 2 y 3
+//  - 0xF0 = B11110000
+mx.setRow(0, 2, 5, 0xF0);
+mxObj.transform(mat, trans);
+// Invertir todos los LEDs de la segunda matriz
+//  - MD_MAX72XX::TINV -&gt; invertir LEDs
+mx.transform(1, MD_MAX72XX::TINV );
+
+// Desplazar el contenido de la primera matriz una posición a la izquierda
+//  - MD_MAX72XX::TSL -&gt; Desplazar a la izquierda
+mx.transform(0, MD_MAX72XX::TSL );
+mxObj.transform(matIni, matFin, trans);
+// Desplazar el contenido de las matrices 1 y 2 una posición a la derecha
+//  - MD_MAX72XX::TSR -&gt; desplazar a la derecha
+mx.transform(1, 2, MD_MAX72XX::TSR );
+// Desplazar el contenido de todas las matrices una posicion hacia arriba
+mx.transform( MD_MAX72XX::TSU );
+// Dibujar el caracter 'A' comenzando en la columna 9 (segunda columna de la segunda matriz)
+int ancho = mx.setChar(9, 'A');
+mxObj.update();
+mxObj.update(mat);
+// actualizar la información de la matriz número 3
+mx.update(2);
+#include &lt;MD_MAX72xx.h&gt;
+#define HARDWARE_TYPE MD_MAX72XX::DR0CR0RR1_HW
+#define NUM_OF_MATRIX 1
+
+#define CLK_PIN   4
+#define DATA_PIN  2
+#define CS_PIN    3
+const byte ghost1[] = {0x18,0x7e,0xff,0xbd,0xff,0xff,0xff,0xa5};
+const byte ghost2[] = {0x18,0x7e,0xbd,0xff,0xff,0xff,0xff,0xa5};
+const byte ghost3[] = {0x18,0x7e,0xdb,0xff,0xff,0xff,0xff,0xa5};
+const byte ghost4[] = {0x18,0x7e,0xff,0xdb,0xff,0xff,0xff,0xa5};
+const byte ghost5[] = {0x18,0x7e,0x99,0x99,0xff,0xff,0xff,0xa5};
+const byte ghost6[] = {0x3c,0x7e,0xd7,0xff,0xc3,0xff,0xff,0xdb};
+MD_MAX72XX mx = MD_MAX72XX(HARDWARE_TYPE, DATA_PIN, CLK_PIN, CS_PIN, NUM_OF_MATRIX);
+char letter = 'a';
+mx.begin();
+mx.control(MD_MAX72XX::TEST, true);
+delay(2000);
+// desactivando el modo de prueba
+mx.control(MD_MAX72XX::TEST, false);
